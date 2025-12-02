@@ -1,0 +1,239 @@
+# 1. Create MySQL deployment
+kubectl create deployment mysql --image=mysql:5.7
+
+# 2. Set MySQL root password
+kubectl set env deployment/mysql MYSQL_ROOT_PASSWORD=root123
+
+# 3. Expose MySQL inside cluster
+kubectl expose deployment mysql --port=3306 --target-port=3306 --type=ClusterIP
+
+# 4. Create phpMyAdmin deployment
+kubectl create deployment phpmyadmin --image=phpmyadmin/phpmyadmin
+
+# 5. Connect phpMyAdmin to MySQL
+kubectl set env deployment/phpmyadmin PMA_HOST=mysql PMA_PORT=3306
+
+# 6. Expose phpMyAdmin to browser (NodePort)
+kubectl expose deployment phpmyadmin --type=NodePort --port=80
+
+# 7. Find NodePort
+kubectl get svc phpmyadmin
+
+# 8. Get Minikube IP (if using minikube)
+minikube ip
+
+# 9. OPEN IN BROWSER:
+# http://<minikube-ip>:<nodeport>
+# Example:
+# http://192.168.49.2:30080
+//----------------------------------------------------------------//
+Docker
+Create folder Dockerfile->
+FROM node:16-alpine
+WORKDIR /app
+COPY Script.js /app
+CMD ["node", "Script.js"]
+Script.js ->
+Console.log("hi")
+ 
+Powershell
+Cd folder path 
+docker build -t simple .
+docker run simple
+docker login 
+docker tag simple dockerid/simple
+docker push dockerid/simple
+docker ps -a
+docker rm containerid
+docker rmi dockerid/simple
+docker pull dockerid/simple
+//-------------------------------------------------------//
+MINIKUBE
+
+minikube start --driver=docker
+minikube kubectl -- get pods -A
+kubectl version --client
+minikube start
+kubectl create deployment mynginx --image=nginx
+kubectl get deployments
+kubectl expose deployment mynginx --type=NodePort --port=80 --target-port=80
+kubectl scale deployment mynginx --replicas=4
+kubectl get service mynginx
+kubectl port-forward svc/mynginx 8081:80
+Open localhost after that delete
+kubectl delete deployment mynginx
+kubectl delete service mynginx
+minikube stop
+minikube delete
+
+NAGIOS
+
+docker pull jasonrivers/nagios:latest
+docker run --name nagiosdemo -p 8888:80 jasonrivers/nagios:latest
+another poershell 
+docker ps
+docker  rm nagiosdemo
+docker rmi jasonrivers/nagios
+
+
+AWS
+commands:
+sudo apt-get update
+sudo apt-get install docker.io
+sudo apt install git
+sudo apt install nano
+create a git repo example
+in git bash:from that folder 
+    git init 
+    git add .
+    git commit -m "message"
+    .....
+git clone //your repo
+cd repo Name
+nano Dockerfile
+
+FROM nginx:alpine
+COPY . /usr/share/nginx/html
+[OR]
+FROM tomcat:9-jdk11
+COPY target/*. /usr/local/tomcat/webapps
+
+after that send ctrl + o && ctrl + x
+sudo docker build -t fileName .
+sudo docker run -d -p 9090:8080 filename
+
+on broser ipaddress:9090\gitreponame
+
+script
+pipeline {
+    agent any
+    tools{
+        maven 'maven3'// modify jdk and maven with names here
+    }
+    stages {
+        stage('git repo & clean') {
+            steps {
+                 bat """if exist myjavaapp (
+                        rmdir /s /q myjavaapp
+                      )"""
+                //bat "rmdir  /s /q mavenjava"
+                bat "git clone https://github.com/adityapanyala/myjavaapp.git"
+                bat "mvn clean -f myjavaapp"
+            }
+        }
+        stage('install') {
+            steps {
+                bat "mvn install -f myjavaapp" 
+            }
+        }
+        stage('test') {
+            steps {
+                bat "mvn test -f myjavaapp"
+            }
+        }
+        stage('package') {
+            steps {
+                bat "mvn package -f myjavaapp"
+            }
+        }
+    }
+}
+
+
+ HOW TO CREATE A MAVEN PROJECT IN ECLIPSE
+
+
+1. Open Eclipse IDE.
+
+2. Go to:
+   File → New → Project
+
+3. In the list, select:
+   Maven → Maven Project
+   Click Next.
+
+4. On the next screen:
+   • DO NOT tick "Create a simple project (skip archetype selection)"
+   Click Next.
+
+5. Select an archetype:
+   org.apache.maven.archetypes → maven-archetype-quickstart
+   Click Next.
+
+6. Fill project details:
+   Group Id: com.example
+   Artifact Id: MyProject
+   Version: (leave default)
+   Package: com.example.myproject
+
+   Click Finish.
+
+7. Eclipse will create the Maven structure:
+   src/main/java
+   src/test/java
+   pom.xml
+
+8. To add dependencies:
+   Open pom.xml and add inside <dependencies> </dependencies>
+
+   Example:
+   <dependency>
+       <groupId>javax.servlet</groupId>
+       <artifactId>javax.servlet-api</artifactId>
+       <version>4.0.1</version>
+       <scope>provided</scope>
+   </dependency>
+
+9. To run your project:
+   Right-click project → Run As → Java Application
+
+==========================
+ Maven project created successfully!
+==========================
+vffg xykv ntwu kcaf
+version: '3.8'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: wp-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppass123
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - wp_network
+
+  wordpress:
+    image: wordpress:latest
+    container_name: wp-site
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass123
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wp_data:/var/www/html
+    networks:
+      - wp_network
+
+networks:
+  wp_network:
+
+volumes:
+  db_data:
+  wp_data:
+FROM tomcat:9.0
+RUN -mf /usr/local/tomcat/webapps/ROOT.war
+COPY /target/maven_exam.war /usr/local/tomcat/webapps/ROOT.war
+
+CMD ["catalina.sh","run"]
